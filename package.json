@@ -1,0 +1,8 @@
+{
+  "name": "table-football",
+  "private": true,
+  "scripts": {
+    "start-client": "cd client && yarn start",
+    "start-server": "cd server && deno run --allow-net --allow-read --allow-write --unstable main.ts"
+  }
+}
