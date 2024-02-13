@@ -1,5 +1,15 @@
 {
   "tasks": {
-    "dev": "deno run --allow-read --allow-env --allow-sys --allow-net --watch main.ts"
+    "dev": "deno run --watch main.ts"
+  },
+  "fmt": {
+    "useTabs": false,
+    "lineWidth": 80,
+    "indentWidth": 2,
+    "semiColons": false,
+    "singleQuote": true,
+    "proseWrap": "preserve",
+    "include": ["src/"],
+    "exclude": ["src/testdata/", "data/fixtures/**/*.ts"]
   }
 }
