@@ -1,11 +1,7 @@
-import api from "./api/index.ts";
-import { MongoClient } from "https://deno.land/x/mongo@v0.32.0/mod.ts";
+import { app, router } from './router.ts'
 
-const client = new MongoClient();
-await client.connect(
-  "mongodb+srv://oltioff:Technis91@cluster0.vnrfdfv.mongodb.net?authMechanism=SCRAM-SHA-1",
-);
-console.log("Connected to MongoDB Atlas!");
+// probably I would some fs library to import all controllers through a loop in controllers folder
+import './controllers/players.ts'
 
-const db = client.database("table-football");
-api(db);
+app.set(router)
+app.listen(8080)
