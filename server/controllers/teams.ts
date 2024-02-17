@@ -11,6 +11,7 @@ import {
   getNameValidity,
   getPlayerIdsValidity,
 } from '../utils/teams.validation.ts'
+import { defaultHeaders } from '../utils/constants.ts'
 
 export type Team = {
   _id: ObjectId
@@ -26,9 +27,7 @@ export type TeamPayload = {
 router.get('/teams', async (_req: Req, res: Res) => {
   const teams = db.collection<Team>('teams')
   const allTeams = await teams.find()
-  res.headers = {
-    'Content-Type': 'application/json',
-  }
+  res.headers = defaultHeaders
   res.reply = JSON.stringify(allTeams)
 })
 
@@ -40,9 +39,7 @@ router.post('/teams', async (req: Req, res: Res) => {
   const arePlayerIdsValid = await getPlayerIdsValidity(playerIds)
   if (!isNameValid || !arePlayerIdsValid) {
     res.status = 400
-    res.headers = {
-      'Content-Type': 'application/json',
-    }
+    res.headers = defaultHeaders
     let error = ''
     if (!name) {
       error = 'Team name is required'
@@ -61,8 +58,6 @@ router.post('/teams', async (req: Req, res: Res) => {
     playerIds: playerIds.map((id) => new ObjectId(id)),
   })
   const team = await teams.findOne({ _id: new ObjectId(insertedId) })
-  res.headers = {
-    'Content-Type': 'application/json',
-  }
+  res.headers = defaultHeaders
   res.reply = JSON.stringify(team)
 })

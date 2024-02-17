@@ -7,6 +7,7 @@ import {
 } from 'https://deno.land/x/denorest@v3.1/mod.ts'
 import db from '../db.ts'
 import { ObjectId } from 'https://deno.land/x/web_bson@v0.3.0/mod.js'
+import { defaultHeaders } from '../utils/constants.ts'
 
 export type Player = {
   _id: ObjectId
@@ -19,9 +20,7 @@ export type PlayerPayload = Omit<Player, '_id'>
 router.get('/players', async (_req: Req, res: Res) => {
   const players = db.collection<Player>('players')
   const allPlayers = await players.find()
-  res.headers = {
-    'Content-Type': 'application/json',
-  }
+  res.headers = defaultHeaders
   res.reply = JSON.stringify(allPlayers)
 })
 
@@ -30,9 +29,7 @@ router.get('/players/:id', async (req: Req, res: Res) => {
   const path = pathParse(req)
   const id = path.params.id
   const player = await players.findOne({ _id: new ObjectId(id) })
-  res.headers = {
-    'Content-Type': 'application/json',
-  }
+  res.headers = defaultHeaders
   res.reply = JSON.stringify(player)
 })
 
@@ -42,9 +39,7 @@ router.post('/players', async (req: Req, res: Res) => {
   const { firstName, lastName, nickName } = playerPayload
   if (!firstName || !lastName || !nickName) {
     res.status = 400
-    res.headers = {
-      'Content-Type': 'application/json',
-    }
+    res.headers = defaultHeaders
     res.reply = JSON.stringify({ error: 'Invalid payload' })
     return
   }
@@ -54,8 +49,6 @@ router.post('/players', async (req: Req, res: Res) => {
     ...playerPayload,
   })
   const player = await players.findOne({ _id: new ObjectId(insertedId) })
-  res.headers = {
-    'Content-Type': 'application/json',
-  }
+  res.headers = defaultHeaders
   res.reply = JSON.stringify(player)
 })

@@ -12,6 +12,7 @@ import {
   getPlayersOngoingGames,
   isGamePlayedBySamePlayerType,
 } from '../utils/games.validation.ts'
+import { defaultHeaders } from '../utils/constants.ts'
 
 export type PlayerType = 'single' | 'double'
 
@@ -41,9 +42,7 @@ const GAME_TOTAL_SCORE = 10
 router.get('/games', async (_req: Req, res: Res) => {
   const games = db.collection<Game>('games')
   const allPlayers = await games.find()
-  res.headers = {
-    'Content-Type': 'application/json',
-  }
+  res.headers = defaultHeaders
   res.reply = JSON.stringify(allPlayers)
 })
 
@@ -54,9 +53,7 @@ const getGamesByTeamIdOrPlayerId = async (req: Req, res: Res) => {
   const allGames = await games.find({
     $or: [{ homeId: new ObjectId(id) }, { awayId: new ObjectId(id) }],
   })
-  res.headers = {
-    'Content-Type': 'application/json',
-  }
+  res.headers = defaultHeaders
   res.reply = JSON.stringify(allGames)
 }
 
@@ -70,9 +67,7 @@ router.post('/games', async (req: Req, res: Res) => {
   const { playerType, homeId, awayId, endedAt, score } = gamePayload
   if (!playerType || !homeId || !awayId) {
     res.status = 400
-    res.headers = {
-      'Content-Type': 'application/json',
-    }
+    res.headers = defaultHeaders
     res.reply = JSON.stringify({ error: 'Invalid payload' })
     return
   }
@@ -80,9 +75,7 @@ router.post('/games', async (req: Req, res: Res) => {
   const playersHaveOngoingGame = playersOngoingGames.length > 0
   if (playersHaveOngoingGame) {
     res.status = 400
-    res.headers = {
-      'Content-Type': 'application/json',
-    }
+    res.headers = defaultHeaders
     res.reply = JSON.stringify({
       error: 'One or more Players have ongoing game',
     })
@@ -95,9 +88,7 @@ router.post('/games', async (req: Req, res: Res) => {
   )
   if (!gamePlayedBySamePlayerType) {
     res.status = 400
-    res.headers = {
-      'Content-Type': 'application/json',
-    }
+    res.headers = defaultHeaders
     res.reply = JSON.stringify({
       error: 'Game must be played by the same player type',
     })
@@ -113,9 +104,7 @@ router.post('/games', async (req: Req, res: Res) => {
   // otherwise is a new game and the score is not required
   if (endedAt && isValidEnd && !isValidScore) {
     res.status = 400
-    res.headers = {
-      'Content-Type': 'application/json',
-    }
+    res.headers = defaultHeaders
     res.reply = JSON.stringify({
       error: 'Invalid score: the sum of the goal must be 10',
     })
@@ -130,9 +119,7 @@ router.post('/games', async (req: Req, res: Res) => {
     score,
   })
   const game = await games.findOne({ _id: new ObjectId(insertedId) })
-  res.headers = {
-    'Content-Type': 'application/json',
-  }
+  res.headers = defaultHeaders
   res.reply = JSON.stringify(game)
 })
 
@@ -146,9 +133,7 @@ router.put('/games/:id/score', async (req: Req, res: Res) => {
   const game = await games.findOne({ _id: new ObjectId(id) })
   if (!game) {
     res.status = 404
-    res.headers = {
-      'Content-Type': 'application/json',
-    }
+    res.headers = defaultHeaders
     res.reply = JSON.stringify({ error: 'Game not found' })
     return
   }
@@ -156,9 +141,7 @@ router.put('/games/:id/score', async (req: Req, res: Res) => {
   const isValidScore = score?.home + score?.away <= GAME_TOTAL_SCORE
   if (!isValidScore) {
     res.status = 400
-    res.headers = {
-      'Content-Type': 'application/json',
-    }
+    res.headers = defaultHeaders
     res.reply = JSON.stringify({
       error: 'Invalid score: the sum of the goal must be 10 or less',
     })
@@ -168,9 +151,7 @@ router.put('/games/:id/score', async (req: Req, res: Res) => {
     { _id: new ObjectId(id) },
     { $set: { score } },
   )
-  res.headers = {
-    'Content-Type': 'application/json',
-  }
+  res.headers = defaultHeaders
   const updatedGame = await games.findOne({ _id: new ObjectId(id) })
   res.reply = JSON.stringify(updatedGame)
 })
@@ -183,17 +164,13 @@ router.put('/games/:id/end', async (req: Req, res: Res) => {
   const game = await games.findOne({ _id: new ObjectId(id) })
   if (!game) {
     res.status = 404
-    res.headers = {
-      'Content-Type': 'application/json',
-    }
+    res.headers = defaultHeaders
     res.reply = JSON.stringify({ error: 'Game not found' })
     return
   }
   if (game.endedAt) {
     res.status = 400
-    res.headers = {
-      'Content-Type': 'application/json',
-    }
+    res.headers = defaultHeaders
     res.reply = JSON.stringify({ error: 'Game already ended' })
     return
   }
@@ -201,9 +178,7 @@ router.put('/games/:id/end', async (req: Req, res: Res) => {
     { _id: new ObjectId(id) },
     { $set: { endedAt: datetime().toISO() } },
   )
-  res.headers = {
-    'Content-Type': 'application/json',
-  }
+  res.headers = defaultHeaders
   const updatedGame = await games.findOne({ _id: new ObjectId(id) })
   res.reply = JSON.stringify(updatedGame)
 })

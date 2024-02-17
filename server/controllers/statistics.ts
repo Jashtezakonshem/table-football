@@ -1,15 +1,10 @@
 import { router } from '../router.ts'
-import {
-  bodyParse,
-  pathParse,
-  Req,
-  Res,
-} from 'https://deno.land/x/denorest@v3.1/mod.ts'
 import db from '../db.ts'
 import { ObjectId } from 'https://deno.land/x/web_bson@v0.3.0/mod.js'
 import { Game } from './games.ts'
 import { Team } from './teams.ts'
 import { Player } from './players.ts'
+import { defaultHeaders } from '../utils/constants.ts'
 
 type Statistic = {
   name: string
@@ -96,8 +91,6 @@ router.get('/statistics', async (_req, res) => {
   const statistics = Object.values(allStatistics).sort((a, b) =>
     b.winRatio - a.winRatio
   )
-  res.headers = {
-    'Content-Type': 'application/json',
-  }
+  res.headers = defaultHeaders
   return res.reply = JSON.stringify(statistics)
 })
