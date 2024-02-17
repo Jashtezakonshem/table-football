@@ -2,7 +2,8 @@
   "name": "table-football",
   "private": true,
   "scripts": {
-    "start-client": "cd client && yarn start",
-    "start-server": "cd server && denon run --allow-net --allow-read --allow-write --unstable main.ts"
+    "bootstrap:client": "cd client && yarn && yarn start",
+    "start:client": "cd client && yarn start",
+    "start:server": "cd server && denon run --allow-net --allow-read --allow-write --unstable main.ts"
   }
 }
