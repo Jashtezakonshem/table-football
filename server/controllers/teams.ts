@@ -11,6 +11,7 @@ import {
   getNameValidity,
   getPlayerIdsValidity,
 } from '../utils/teams.validation.ts'
+import _ from 'npm:lodash@4.17.21'
 import { defaultHeaders } from '../utils/constants.ts'
 
 export type Team = {
@@ -26,9 +27,20 @@ export type TeamPayload = {
 
 router.get('/teams', async (_req: Req, res: Res) => {
   const teams = db.collection<Team>('teams')
+  const playersCollection = db.collection('players')
   const allTeams = await teams.find()
+  const playerIds = _.uniq(allTeams.map((team) => team.playerIds).flat())
+  const allPlayers = await playersCollection.find({
+    _id: { $in: playerIds },
+  })
+  const teamWithPlayers = allTeams.map((team) => {
+    const players = allPlayers.filter((player) =>
+      team.playerIds.some((id) => id.equals(player._id))
+    )
+    return { ...team, players }
+  })
   res.headers = defaultHeaders
-  res.reply = JSON.stringify(allTeams)
+  res.reply = JSON.stringify(teamWithPlayers)
 })
 
 router.post('/teams', async (req: Req, res: Res) => {
@@ -38,6 +50,7 @@ router.post('/teams', async (req: Req, res: Res) => {
   const isNameValid = await getNameValidity(name)
   const arePlayerIdsValid = await getPlayerIdsValidity(playerIds)
   if (!isNameValid || !arePlayerIdsValid) {
+    console.log('Invalid team payload')
     res.status = 400
     res.headers = defaultHeaders
     let error = ''

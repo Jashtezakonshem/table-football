@@ -23,7 +23,6 @@ export const getPlayerIdsValidity = async (
     return false
   }
   const areValidObjectIds = playerIds.every((id) => ObjectId.isValid(id))
-  console.log('areValidObjectIds', areValidObjectIds)
   if (!areValidObjectIds) {
     return false
   }
@@ -31,6 +30,5 @@ export const getPlayerIdsValidity = async (
   const foundPlayers = await players.find({
     _id: { $in: playerIds.map((id) => new ObjectId(id)) },
   })
-  console.log('foundPlayers', foundPlayers)
   return foundPlayers.length === playerIds.length
 }
