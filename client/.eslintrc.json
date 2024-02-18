@@ -7,8 +7,10 @@
       "eslint:recommended",
       "plugin:react/recommended",
       "plugin:react-hooks/recommended",
-      "prettier"
+      "prettier",
+      "plugin:@typescript-eslint/recommended"
     ],
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
       "ecmaVersion": 12,
       "sourceType": "module",
@@ -19,6 +21,7 @@
     "plugins": ["react", "react-hooks", "prettier"],  // Add "prettier" to the plugins array
     "rules": {
       // Add customize rules here as per your project's needs
-      "prettier/prettier": "error"  // Enforce Prettier rules
+      "prettier/prettier": "warn",  // Enforce Prettier rules
+      "quotes": ["error", "double"]
     }
 }
