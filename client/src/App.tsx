@@ -1,7 +1,7 @@
 import React from "react";
 import "./App.css";
 import { Route, Switch } from "wouter";
-import { Dashboard } from "./pages/Dashbboard";
+import { Dashboard } from "./pages/dashboard";
 
 function App() {
   return (
