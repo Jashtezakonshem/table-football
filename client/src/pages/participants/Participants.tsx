@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { PageContainer } from "../../components/PageContainer";
-import { createTeam, getParticipants } from "../../api";
+import { createPlayer, createTeam, getParticipants } from "../../api";
 import {
   Button,
   Drawer,
@@ -10,6 +10,7 @@ import {
   Input,
   AutoComplete,
   Tag,
+  InputRef,
 } from "antd";
 import styled from "styled-components";
 import { useLocation } from "wouter";
@@ -106,6 +107,11 @@ export const Participants = () => {
     "team" | "player"
   >("player");
   const [, setLocation] = useLocation();
+  // using ref is a smart way to avoid using state for input values since it won't trigger a rerender
+  const nameRef = React.createRef<InputRef>();
+  const nickNameRef = React.createRef<InputRef>();
+  const firstNameRef = React.createRef<InputRef>();
+  const lastNameRef = React.createRef<InputRef>();
   useEffect(() => {
     const fetchData = async () => {
       const { teams, players } = await getParticipants();
@@ -153,10 +159,30 @@ export const Participants = () => {
 
   const onAddTeamClick = async () => {
     const playerIds = newTeamPlayers.map((player) => player._id);
-    createTeam({
-      name: "Vecchi",
+    const name = nameRef.current?.input?.value || "";
+    const createdTeam = await createTeam({
+      name,
       playerIds,
     });
+    console.log(createdTeam);
+    const updatedTeams = [...teams, createdTeam];
+    setTeams(updatedTeams);
+    onClose();
+  };
+
+  const onAddPlayerClick = async () => {
+    const nickName = nickNameRef.current?.input?.value || "";
+    const firstName = firstNameRef.current?.input?.value || "";
+    const lastName = lastNameRef.current?.input?.value || "";
+    const createdPlayer = await createPlayer({
+      nickName,
+      firstName,
+      lastName,
+    });
+    const updatedPlayers = [...players, createdPlayer];
+    setPlayers(updatedPlayers);
+    // unlucky name but it's already defined
+    onClose();
   };
 
   const addTeamDisable = newTeamPlayers.length !== 2;
@@ -204,9 +230,9 @@ export const Participants = () => {
           <Radio value={"player"}>Player</Radio>
           <Radio value={"team"}>Team</Radio>
         </Radio.Group>
-        {newParticipantType === "team" && (
+        {newParticipantType === "team" && open && (
           <FormContainer>
-            <FormInput placeholder="Team name" />
+            <FormInput placeholder="Team name" ref={nameRef} />
             <PlayerAutoComplete
               disabled={newTeamPlayers.length === 2}
               options={playersOption}
@@ -245,12 +271,15 @@ export const Participants = () => {
             </NewButton>
           </FormContainer>
         )}
-        {newParticipantType === "player" && (
+        {/* using open as render condition so when I add a new player or team this will rerender causing the input to clear*/}
+        {newParticipantType === "player" && open && (
           <FormContainer>
-            <FormInput placeholder="Nick name" />
-            <FormInput placeholder="First name" />
-            <FormInput placeholder="Last name" />
-            <NewButton type="primary">Add player</NewButton>
+            <FormInput placeholder="Nick name" ref={nickNameRef} />
+            <FormInput placeholder="First name" ref={firstNameRef} />
+            <FormInput placeholder="Last name" ref={lastNameRef} />
+            <NewButton onClick={onAddPlayerClick} type="primary">
+              Add player
+            </NewButton>
           </FormContainer>
         )}
       </NewParticipantDrawer>

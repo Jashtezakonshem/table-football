@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Player } from "../model";
 
 export const getStatistics = async () => {
   const { data } = await axios.get("/statistics");
@@ -18,5 +19,19 @@ export const createTeam = async ({
   name: string;
   playerIds: string[];
 }) => {
-  const response = await axios.post("/teams", { name, playerIds });
+  try {
+    const { data } = await axios.post("/teams", { name, playerIds });
+    return data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const createPlayer = async (player: Omit<Player, "_id">) => {
+  try {
+    const { data } = await axios.post("/players", player);
+    return data;
+  } catch (e) {
+    console.log(e);
+  }
 };
