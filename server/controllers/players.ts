@@ -20,7 +20,6 @@ export type PlayerPayload = Omit<Player, '_id'>
 router.get('/players', async (_req: Req, res: Res) => {
   const players = db.collection<Player>('players')
   const allPlayers = await players.find()
-  res.headers = defaultHeaders
   res.reply = JSON.stringify(allPlayers)
 })
 
@@ -29,7 +28,6 @@ router.get('/players/:id', async (req: Req, res: Res) => {
   const path = pathParse(req)
   const id = path.params.id
   const player = await players.findOne({ _id: new ObjectId(id) })
-  res.headers = defaultHeaders
   res.reply = JSON.stringify(player)
 })
 
@@ -39,16 +37,21 @@ router.post('/players', async (req: Req, res: Res) => {
   const { firstName, lastName, nickName } = playerPayload
   if (!firstName || !lastName || !nickName) {
     res.status = 400
-    res.headers = defaultHeaders
     res.reply = JSON.stringify({ error: 'Invalid payload' })
     return
   }
   const players = db.collection<Player>('players')
+  const playersWithSameNickName = await players.find({ nickName })
+  if (playersWithSameNickName.length > 0) {
+    res.status = 400
+    res.reply = JSON.stringify({ error: 'Nickname already taken' })
+    return
+  }
   const { insertedId } = await players.insertOne({
     _id: new ObjectId(),
     ...playerPayload,
   })
   const player = await players.findOne({ _id: new ObjectId(insertedId) })
-  res.headers = defaultHeaders
+  res.status = 201
   res.reply = JSON.stringify(player)
 })

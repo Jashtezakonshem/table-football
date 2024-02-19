@@ -39,7 +39,6 @@ router.get('/teams', async (_req: Req, res: Res) => {
     )
     return { ...team, players }
   })
-  res.headers = defaultHeaders
   res.reply = JSON.stringify(teamWithPlayers)
 })
 
@@ -50,9 +49,7 @@ router.post('/teams', async (req: Req, res: Res) => {
   const isNameValid = await getNameValidity(name)
   const arePlayerIdsValid = await getPlayerIdsValidity(playerIds)
   if (!isNameValid || !arePlayerIdsValid) {
-    console.log('Invalid team payload')
     res.status = 400
-    res.headers = defaultHeaders
     let error = ''
     if (!name) {
       error = 'Team name is required'
@@ -71,6 +68,6 @@ router.post('/teams', async (req: Req, res: Res) => {
     playerIds: playerIds.map((id) => new ObjectId(id)),
   })
   const team = await teams.findOne({ _id: new ObjectId(insertedId) })
-  res.headers = defaultHeaders
+  res.status = 201
   res.reply = JSON.stringify(team)
 })
