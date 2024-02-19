@@ -1,10 +1,5 @@
 import { router } from '../router.ts'
-import {
-  bodyParse,
-  pathParse,
-  Req,
-  Res,
-} from 'https://deno.land/x/denorest@v3.1/mod.ts'
+import { bodyParse, Req, Res } from 'https://deno.land/x/denorest@v3.1/mod.ts'
 import db from '../db.ts'
 import { ObjectId } from 'https://deno.land/x/web_bson@v0.3.0/mod.js'
 import {
@@ -12,7 +7,6 @@ import {
   getPlayerIdsValidity,
 } from '../utils/teams.validation.ts'
 import _ from 'npm:lodash@4.17.21'
-import { defaultHeaders } from '../utils/constants.ts'
 
 export type Team = {
   _id: ObjectId
@@ -67,7 +61,13 @@ router.post('/teams', async (req: Req, res: Res) => {
     name,
     playerIds: playerIds.map((id) => new ObjectId(id)),
   })
+  const playersCollection = db.collection('players')
+  const allPlayers = await playersCollection.find({
+    _id: { $in: playerIds.map((id) => new ObjectId(id)) },
+  })
+
   const team = await teams.findOne({ _id: new ObjectId(insertedId) })
+  const teamWithPlayers = { ...team, players: allPlayers }
   res.status = 201
-  res.reply = JSON.stringify(team)
+  res.reply = JSON.stringify(teamWithPlayers)
 })
