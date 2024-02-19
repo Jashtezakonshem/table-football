@@ -50,4 +50,7 @@ const ActionButton = ({ icon, onClick, title }: ActionButtonProps) => {
   );
 };
 
+//in this case I'm using memo but the callback I pass is not a safe dependency
+// since it's an anonymous function, it will be recreated every time the component is rendered
+// this is only for show off purposes
 export default memo(ActionButton);

@@ -15,7 +15,7 @@ import {
 import styled from "styled-components";
 import { useLocation } from "wouter";
 import { Player, Team } from "../../model";
-import { PlusOutlined } from "@ant-design/icons";
+import { ArrowRightOutlined, PlusOutlined } from "@ant-design/icons";
 
 const TeamRow = styled.div`
   margin-top: 12px;
@@ -30,7 +30,7 @@ const TeamRow = styled.div`
 `;
 
 const PlayerRow = styled.div`
-  margin-top: 12px;
+  margin-top: 1rem;
   > :first-child {
     font-weight: bold;
   }
@@ -41,8 +41,11 @@ const PlayerRow = styled.div`
   width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: space-around;
   align-items: center;
+  border: 1px solid blueviolet;
+  border-radius: 4px;
+  padding: 0.5rem 0;
 `;
 
 const PlayersCol = styled.div`
@@ -50,6 +53,10 @@ const PlayersCol = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+`;
+
+const TabWrapper = styled.div`
+  padding: 0.5rem;
 `;
 
 const NewParticipantFab = styled(Button)`
@@ -185,31 +192,47 @@ export const Participants = () => {
     onClose();
   };
 
+  const goToPlayerDetails = (id: string) => {
+    setLocation(`/players/${id}`);
+  };
+
+  const goToTeamDetails = (id: string) => {
+    setLocation(`/teams/${id}`);
+  };
+
   const addTeamDisable = newTeamPlayers.length !== 2;
 
   return (
     <PageContainer>
       <Tabs defaultActiveKey="players" centered>
         <Tabs.TabPane tab="Players" key="players">
-          {players.map((player) => (
-            <PlayerRow key={player._id}>
-              <div>{player.nickName}</div>
-              <div>{player.firstName}</div>
-              <div>{player.lastName}</div>
-            </PlayerRow>
-          ))}
+          <TabWrapper>
+            {players.map((player) => (
+              <PlayerRow
+                onClick={() => goToPlayerDetails(player._id)}
+                key={player._id}
+              >
+                <div>{player.nickName}</div>
+                <div>{player.firstName}</div>
+                <div>{player.lastName}</div>
+                <ArrowRightOutlined />
+              </PlayerRow>
+            ))}
+          </TabWrapper>
         </Tabs.TabPane>
         <Tabs.TabPane tab="Teams" key="teams">
-          {teams.map((team) => (
-            <TeamRow key={team._id}>
-              <div className="bold">{team.name}</div>
-              <PlayersCol>
-                {team.players.map((player) => (
-                  <div key={player._id}>{player.nickName}</div>
-                ))}
-              </PlayersCol>
-            </TeamRow>
-          ))}
+          <TabWrapper>
+            {teams.map((team) => (
+              <TeamRow onClick={() => goToTeamDetails(team._id)} key={team._id}>
+                <div className="bold">{team.name}</div>
+                <PlayersCol>
+                  {team.players.map((player) => (
+                    <div key={player._id}>{player.nickName}</div>
+                  ))}
+                </PlayersCol>
+              </TeamRow>
+            ))}
+          </TabWrapper>
         </Tabs.TabPane>
       </Tabs>
       <NewParticipantFab
