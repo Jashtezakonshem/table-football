@@ -7,14 +7,22 @@ import { Team } from '../controllers/teams.ts'
 export const isGamePlayedBySamePlayerType = async (
   homeId: string,
   awayId: string,
-  playerType: PlayerType,
-): Promise<boolean> => {
-  const collectionName = playerType === 'single' ? 'players' : 'teams'
-  const collection = db.collection<Player | Team>(collectionName)
-  const foundMembers = await collection.find({
+): Promise<PlayerType | undefined> => {
+  const playersCollection = db.collection<Player>('players')
+  const teamsCollection = db.collection<Team>('teams')
+  const foundPlayers = await playersCollection.find({
     _id: { $in: [new ObjectId(homeId), new ObjectId(awayId)] },
   })
-  return foundMembers.length === 2
+  if (foundPlayers.length === 2) {
+    return 'single'
+  }
+  const foundTeams = await teamsCollection.find({
+    _id: { $in: [new ObjectId(homeId), new ObjectId(awayId)] },
+  })
+  if (foundTeams.length === 2) {
+    return 'double'
+  }
+  return undefined
 }
 
 export const getPlayersOngoingGames = async (

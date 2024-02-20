@@ -30,7 +30,6 @@ export type Game = {
 }
 
 export type GamePayload = {
-  playerType: PlayerType
   homeId: string
   awayId: string
   endedAt?: string
@@ -62,8 +61,8 @@ router.get('/teams/:id/games', getGamesByTeamIdOrPlayerId)
 router.post('/games', async (req: Req, res: Res) => {
   const body = await bodyParse(req)
   const gamePayload: GamePayload = body.field
-  const { playerType, homeId, awayId, endedAt, score } = gamePayload
-  if (!playerType || !homeId || !awayId) {
+  const { homeId, awayId, endedAt, score } = gamePayload
+  if (!homeId || !awayId) {
     res.status = 400
     res.reply = JSON.stringify({ error: 'Invalid payload' })
     return
@@ -77,10 +76,9 @@ router.post('/games', async (req: Req, res: Res) => {
     })
     return
   }
-  const gamePlayedBySamePlayerType = isGamePlayedBySamePlayerType(
+  const gamePlayedBySamePlayerType = await isGamePlayedBySamePlayerType(
     homeId,
     awayId,
-    playerType,
   )
   if (!gamePlayedBySamePlayerType) {
     res.status = 400
@@ -107,7 +105,7 @@ router.post('/games', async (req: Req, res: Res) => {
     _id: new ObjectId(),
     homeId: new ObjectId(homeId),
     awayId: new ObjectId(awayId),
-    playerType,
+    playerType: gamePlayedBySamePlayerType,
     score,
   })
   const game = await games.findOne({ _id: new ObjectId(insertedId) })
