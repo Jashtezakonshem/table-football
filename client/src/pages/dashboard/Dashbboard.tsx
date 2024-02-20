@@ -4,8 +4,8 @@ import { createGame, getParticipants, getStatistics } from "../../api";
 import styled from "styled-components";
 import ActionButton from "./components/ActionButton";
 import { useLocation } from "wouter";
-import { AutoComplete, Button, Drawer } from "antd";
-import { Player, Team } from "../../model";
+import { AutoComplete, Button, Drawer, Table } from "antd";
+import { Player, Statistic, Team } from "../../model";
 
 const Title = styled.h1`
   font-size: 2em;
@@ -48,9 +48,60 @@ const ParticipantAutocomplete = styled(AutoComplete)`
 const NewButton = styled(Button)`
   margin-top: 1rem;
 `;
+
+const StatisticsTable = styled(Table)`
+  height: 100%;
+  width: 100%;
+  overflow: scroll;
+`;
+
+const statisticsColumns = [
+  {
+    title: "Name",
+    dataIndex: "name",
+    key: "name",
+  },
+  {
+    title: "Games played",
+    dataIndex: "gamesPlayed",
+    key: "gamesPlayed",
+  },
+  {
+    title: "Games won",
+    dataIndex: "gamesWon",
+    key: "gamesWon",
+  },
+  {
+    title: "Games lost",
+    dataIndex: "gamesLost",
+    key: "gamesLost",
+  },
+  {
+    title: "Win ratio",
+    dataIndex: "winRatio",
+    key: "winRatio",
+    render: (value: number) => `${(value * 100).toFixed(2)}%`,
+  },
+  {
+    title: "GF",
+    dataIndex: "gf",
+    key: "gf",
+  },
+  {
+    title: "GA",
+    dataIndex: "ga",
+    key: "ga",
+  },
+  {
+    title: "GD",
+    dataIndex: "gd",
+    key: "gd",
+  },
+];
 export const Dashboard = () => {
   const [, setLocation] = useLocation();
   const [open, setOpen] = useState(false);
+  const [statistics, setStatistics] = useState<Statistic[]>([]);
   const [homeParticipant, setHomeParticipant] = useState("");
   const [awayParticipant, setAwayParticipant] = useState("");
   const [teams, setTeams] = useState<Team[]>([]);
@@ -61,6 +112,7 @@ export const Dashboard = () => {
       const { teams, players } = await getParticipants();
       setTeams(teams);
       setPlayers(players);
+      setStatistics(statistics);
     };
     fetchData();
   }, []);
@@ -118,7 +170,15 @@ export const Dashboard = () => {
   return (
     <PageContainer>
       <Title>Table Football manager</Title>
-      <StatisticsContainer></StatisticsContainer>
+      <StatisticsContainer>
+        <StatisticsTable
+          rowKey={"name"}
+          dataSource={statistics}
+          columns={statisticsColumns}
+          pagination={false}
+        />
+        ;
+      </StatisticsContainer>
       <ActionsContainer>
         <ActionButton
           onClick={showDrawer}

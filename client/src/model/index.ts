@@ -29,7 +29,7 @@ export type Team = {
   players: Player[];
 };
 
-type Statistic = {
+export type Statistic = {
   name: string;
   gamesPlayed: number;
   gamesWon: number;
