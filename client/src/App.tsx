@@ -6,6 +6,8 @@ import { Dashboard } from "./pages/dashboard";
 import { Participants } from "./pages/participants";
 import { PRIMARY } from "./style/colors";
 import { NewGame } from "./pages/new-game";
+import { TeamDetails } from "./pages/team-details";
+import { PlayerDetails } from "./pages/player-details";
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
           <Route path="/" component={Dashboard} />
           <Route path="/participants" component={Participants} />
           <Route path="/new-game/:id" component={NewGame} />
+          <Route path="/teams/:id" component={TeamDetails} />
+          <Route path="/players/:id" component={PlayerDetails} />
           <Route>404: No such page!</Route>
         </Switch>
       </ConfigProvider>

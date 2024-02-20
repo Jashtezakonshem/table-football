@@ -5,12 +5,14 @@ import styled from "styled-components";
 
 const Left = styled(ArrowLeftOutlined)`
   position: fixed;
-  top: 2rem;
+  top: 1rem;
   left: 2rem;
+  color: ${(props) => props.color};
+  z-index: 9999;
 `;
 export const GoBackButton = ({
   path,
-  color = "#FFF",
+  color = "#000",
 }: {
   path: string;
   color?: string;

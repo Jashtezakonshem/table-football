@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { PageContainer } from "../../components";
+import { GoBackButton, PageContainer } from "../../components";
 import { createPlayer, createTeam, getParticipants } from "../../api";
 import {
   Button,
@@ -27,6 +27,9 @@ const TeamRow = styled.div`
   flex-direction: row;
   justify-content: space-evenly;
   align-items: center;
+  border: 1px solid blueviolet;
+  border-radius: 4px;
+  padding: 0.5rem 0;
 `;
 
 const PlayerRow = styled.div`
@@ -36,7 +39,11 @@ const PlayerRow = styled.div`
   }
   > div {
     flex: 1;
-    text-align: center;
+  }
+  > :last-child {
+    flex: 1;
+    display: flex;
+    justify-content: center;
   }
   width: 100%;
   display: flex;
@@ -154,7 +161,7 @@ export const Participants = () => {
       const needle = inputValue.toUpperCase();
       return option?.label.toUpperCase().indexOf(needle) !== -1;
     },
-    [setSearch],
+    [],
   );
 
   const removePlayer = (playerId: string) => {
@@ -181,15 +188,19 @@ export const Participants = () => {
     const nickName = nickNameRef.current?.input?.value || "";
     const firstName = firstNameRef.current?.input?.value || "";
     const lastName = lastNameRef.current?.input?.value || "";
-    const createdPlayer = await createPlayer({
-      nickName,
-      firstName,
-      lastName,
-    });
-    const updatedPlayers = [...players, createdPlayer];
-    setPlayers(updatedPlayers);
-    // unlucky name but it's already defined
-    onClose();
+    try {
+      const createdPlayer = await createPlayer({
+        nickName,
+        firstName,
+        lastName,
+      });
+      const updatedPlayers = [...players, createdPlayer];
+      setPlayers(updatedPlayers);
+      // unlucky name but it's already defined
+      onClose();
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const goToPlayerDetails = (id: string) => {
@@ -204,6 +215,7 @@ export const Participants = () => {
 
   return (
     <PageContainer>
+      <GoBackButton path={"/"} />
       <Tabs defaultActiveKey="players" centered>
         <Tabs.TabPane tab="Players" key="players">
           <TabWrapper>
@@ -230,6 +242,7 @@ export const Participants = () => {
                     <div key={player._id}>{player.nickName}</div>
                   ))}
                 </PlayersCol>
+                <ArrowRightOutlined />
               </TeamRow>
             ))}
           </TabWrapper>

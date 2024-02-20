@@ -5,6 +5,7 @@ import { Game } from './games.ts'
 import { Team } from './teams.ts'
 import { Player } from './players.ts'
 import { defaultHeaders } from '../utils/constants.ts'
+import { pathParse } from 'https://deno.land/x/denorest@v3.1/mod.ts'
 
 type Statistic = {
   name: string
@@ -92,4 +93,46 @@ router.get('/statistics', async (_req, res) => {
     b.winRatio - a.winRatio
   )
   return res.reply = JSON.stringify(statistics)
+})
+
+router.get('/teams/:id/statistics', async (req, res) => {
+  const teamsCollection = db.collection<Team>('teams')
+  const path = pathParse(req)
+  const id = path.params.id
+  const team = await teamsCollection.findOne({ _id: new ObjectId(id) })
+  if (!team) {
+    res.status = 404
+    res.reply = JSON.stringify({ error: 'Team not found' })
+    return
+  }
+  const gamesCollection = db.collection<Game>('games')
+  const gamesPlayedByTeam = await gamesCollection.find({
+    $or: [
+      { homeId: new ObjectId(id) },
+      { awayId: new ObjectId(id) },
+    ],
+  })
+  const statistics = computeStatistics(gamesPlayedByTeam, [team])
+  return res.reply = JSON.stringify(statistics)
+})
+
+router.get('/players/:id/statistics', async (req, res) => {
+  const playersCollection = db.collection<Player>('players')
+  const path = pathParse(req)
+  const id = path.params.id
+  const player = await playersCollection.findOne({ _id: new ObjectId(id) })
+  if (!player) {
+    res.status = 404
+    res.reply = JSON.stringify({ error: 'Player not found' })
+    return
+  }
+  const gamesCollection = db.collection<Game>('games')
+  const gamesPlayedByPlayer = await gamesCollection.find({
+    $or: [
+      { homeId: new ObjectId(id) },
+      { awayId: new ObjectId(id) },
+    ],
+  })
+  const statistics = computeStatistics(gamesPlayedByPlayer, [player])
+  return res.reply = JSON.stringify(statistics[id] ? statistics[id] : {})
 })
