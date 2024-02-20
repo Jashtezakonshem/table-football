@@ -12,7 +12,7 @@ import {
   getPlayersOngoingGames,
   isGamePlayedBySamePlayerType,
 } from '../utils/games.validation.ts'
-import { defaultHeaders } from '../utils/constants.ts'
+import _ from 'npm:lodash@4.17.21'
 import { Team } from './teams.ts'
 import { Player } from './players.ts'
 
@@ -44,8 +44,8 @@ const GAME_TOTAL_SCORE = 10
 
 router.get('/games', async (_req: Req, res: Res) => {
   const games = db.collection<Game>('games')
-  const allPlayers = await games.find()
-  res.reply = JSON.stringify(allPlayers)
+  const allGames = await games.find()
+  res.reply = JSON.stringify(allGames)
 })
 
 const getGamesByTeamIdOrPlayerId = async (req: Req, res: Res) => {
@@ -55,7 +55,34 @@ const getGamesByTeamIdOrPlayerId = async (req: Req, res: Res) => {
   const allGames = await games.find({
     $or: [{ homeId: new ObjectId(id) }, { awayId: new ObjectId(id) }],
   })
-  res.reply = JSON.stringify(allGames)
+  // every game has the same player type
+  const playerType = allGames[0]?.playerType
+  const collectionName = playerType === 'single' ? 'players' : 'teams'
+  const participantsCollection = db.collection<Player>(collectionName)
+  // for each game I need to find the player or team
+  const playerIds = _.uniq(
+    allGames.map((game) => [
+      game.homeId,
+      game.awayId,
+    ]).flat(),
+  )
+  const allParticipants = await participantsCollection.find({
+    _id: { $in: playerIds },
+  })
+  const gamesWithParticipants = allGames.map((game) => {
+    const homeParticipant = allParticipants.find((player) =>
+      player._id.equals(game.homeId)
+    )
+    const awayParticipant = allParticipants.find((player) =>
+      player._id.equals(game.awayId)
+    )
+    return {
+      ...game,
+      homeParticipant: homeParticipant,
+      awayParticipant: awayParticipant,
+    }
+  })
+  res.reply = JSON.stringify(gamesWithParticipants)
 }
 
 router.get('/players/:id/games', getGamesByTeamIdOrPlayerId)
