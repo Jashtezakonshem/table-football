@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import { Button } from "antd";
+import { Button, Tooltip } from "antd";
 import {
   UnorderedListOutlined,
   PlusOutlined,
@@ -15,8 +15,10 @@ type IconName =
   | "UserOutlined";
 type ActionButtonProps = {
   icon: IconName;
-  onClick: () => void;
+  onClick?: () => void;
   title: string;
+  disabled?: boolean;
+  reason?: string;
 };
 
 const Container = styled(Button)`
@@ -40,13 +42,25 @@ const iconMap = {
   UserOutlined,
 };
 
-const ActionButton = ({ icon, onClick, title }: ActionButtonProps) => {
+const ActionButton = ({
+  icon,
+  onClick,
+  title,
+  disabled,
+  reason,
+}: ActionButtonProps) => {
   const Icon = iconMap[icon];
   return (
-    <Container type="primary" onClick={onClick}>
-      <Icon color={"#FFF"} />
-      <Title>{title}</Title>
-    </Container>
+    <Tooltip title={reason} trigger="click">
+      <Container
+        type={"primary"}
+        onClick={onClick}
+        style={{ backgroundColor: disabled ? "grey" : undefined }}
+      >
+        <Icon color={"#FFF"} />
+        <Title>{title}</Title>
+      </Container>
+    </Tooltip>
   );
 };
 

@@ -196,9 +196,10 @@ export const Dashboard = () => {
           title="Register"
         />
         <ActionButton
-          onClick={() => onActionClick("/games")}
           icon="UnorderedListOutlined"
           title="History"
+          disabled={true}
+          reason={"Not implemented"}
         />
       </ActionsContainer>
       <GameDrawer
