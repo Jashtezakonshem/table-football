@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Player } from "../model";
+import { Player, Score } from "../model";
 
 export const getStatistics = async () => {
   const { data } = await axios.get("/statistics");
@@ -30,6 +30,43 @@ export const createTeam = async ({
 export const createPlayer = async (player: Omit<Player, "_id">) => {
   try {
     const { data } = await axios.post("/players", player);
+    return data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const createGame = async (homeId?: string, awayId?: string) => {
+  try {
+    const { data } = await axios.post("/games", { homeId, awayId });
+    console.log(data);
+    return data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const getGameById = async (id?: string) => {
+  try {
+    const { data } = await axios.get(`/games/${id}`);
+    return data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const updateGameScore = async (id: string, score: Score) => {
+  try {
+    const { data } = await axios.put(`/games/${id}/score`, score);
+    return data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const endGame = async (id: string) => {
+  try {
+    const { data } = await axios.put(`/games/${id}/end`);
     return data;
   } catch (e) {
     console.log(e);

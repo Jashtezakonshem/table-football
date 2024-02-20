@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect } from "react";
-import { PageContainer } from "../../components/PageContainer";
-import { getStatistics } from "../../api";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { PageContainer } from "../../components";
+import { createGame, getParticipants, getStatistics } from "../../api";
 import styled from "styled-components";
 import ActionButton from "./components/ActionButton";
 import { useLocation } from "wouter";
+import { AutoComplete, Button, Drawer } from "antd";
+import { Player, Team } from "../../model";
 
 const Title = styled.h1`
   font-size: 2em;
@@ -22,19 +24,56 @@ const ActionsContainer = styled.div`
   grid-template-rows: 1fr 1fr;
   gap: 36px;
 `;
+
+const GameDrawer = styled(Drawer)`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+`;
+
+const FormContainer = styled.div`
+  width: 90vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+`;
+
+const ParticipantAutocomplete = styled(AutoComplete)`
+  margin-top: 1rem;
+  width: 100%;
+`;
+
+const NewButton = styled(Button)`
+  margin-top: 1rem;
+`;
 export const Dashboard = () => {
   const [, setLocation] = useLocation();
+  const [open, setOpen] = useState(false);
+  const [homeParticipant, setHomeParticipant] = useState("");
+  const [awayParticipant, setAwayParticipant] = useState("");
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [players, setPlayers] = useState<Player[]>([]);
   useEffect(() => {
     const fetchData = async () => {
       const statistics = await getStatistics();
-      console.log(statistics);
+      const { teams, players } = await getParticipants();
+      setTeams(teams);
+      setPlayers(players);
     };
     fetchData();
   }, []);
 
-  // totally unnecessary but since I defined Action Button as memo I don't want
-  // the component to rerender on every click
+  const participants = [...teams, ...players].map((participant) => {
+    return {
+      label: "name" in participant ? participant.name : participant.nickName,
+      value: participant._id,
+    };
+  });
+
   // this is just for show off that I can use useCallback / memo etc
+  // in this case it doesn't make any sense to use it
   const onActionClick = useCallback(
     (path: string) => {
       setLocation(path);
@@ -42,20 +81,49 @@ export const Dashboard = () => {
     [setLocation],
   );
 
+  const onClose = () => {
+    setOpen(false);
+  };
+
+  const showDrawer = () => {
+    setOpen(true);
+  };
+
+  const filterParticipants = useCallback(
+    (
+      inputValue: string,
+      option: { label: string; value: string } | undefined,
+    ) => {
+      const needle = inputValue.toUpperCase();
+      return option?.label.toUpperCase().indexOf(needle) !== -1;
+    },
+    [],
+  );
+
+  const newGame = async () => {
+    const homeParticipantId = participants.find(
+      (p) => p.label === homeParticipant,
+    )?.value;
+    const awayParticipantId = participants.find(
+      (p) => p.label === awayParticipant,
+    )?.value;
+    try {
+      const game = await createGame(homeParticipantId, awayParticipantId);
+      setLocation(`/new-game/${game._id}`);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <PageContainer>
       <Title>Table Football manager</Title>
       <StatisticsContainer></StatisticsContainer>
       <ActionsContainer>
         <ActionButton
-          onClick={() => onActionClick("/new-game")}
+          onClick={showDrawer}
           icon="PlusOutlined"
           title="New game"
-        />
-        <ActionButton
-          onClick={() => onActionClick("/register-game")}
-          icon="BookOutlined"
-          title="Register"
         />
         <ActionButton
           onClick={() => onActionClick("/participants")}
@@ -63,11 +131,54 @@ export const Dashboard = () => {
           title="Participants"
         />
         <ActionButton
+          onClick={() => onActionClick("/register-game")}
+          icon="BookOutlined"
+          title="Register"
+        />
+        <ActionButton
           onClick={() => onActionClick("/games")}
           icon="UnorderedListOutlined"
           title="History"
         />
       </ActionsContainer>
+      <GameDrawer
+        placement="bottom"
+        title={"New Game"}
+        onClose={onClose}
+        open={open}
+      >
+        {open && (
+          <FormContainer>
+            <ParticipantAutocomplete
+              options={participants}
+              value={homeParticipant}
+              placeholder="Home participant"
+              // @ts-expect-error filter typescript firm is stupid
+              filterOption={filterParticipants}
+              onChange={(value) => setHomeParticipant(value as string)}
+              onSelect={(value) => {
+                const participant = participants.find((p) => p.value === value);
+                setHomeParticipant(participant?.label || "");
+              }}
+            />
+            <ParticipantAutocomplete
+              options={participants}
+              value={awayParticipant}
+              placeholder="Away participant"
+              // @ts-expect-error filter typescript firm is stupid
+              filterOption={filterParticipants}
+              onChange={(value) => setAwayParticipant(value as string)}
+              onSelect={(value) => {
+                const participant = participants.find((p) => p.value === value);
+                setAwayParticipant(participant?.label || "");
+              }}
+            />
+            <NewButton onClick={newGame} type="primary">
+              create
+            </NewButton>
+          </FormContainer>
+        )}
+      </GameDrawer>
     </PageContainer>
   );
 };

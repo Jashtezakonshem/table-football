@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { PageContainer } from "../../components/PageContainer";
+import { PageContainer } from "../../components";
 import { createPlayer, createTeam, getParticipants } from "../../api";
 import {
   Button,

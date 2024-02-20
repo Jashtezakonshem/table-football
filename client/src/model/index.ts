@@ -9,6 +9,8 @@ export type Game = {
   playerType: PlayerType;
   homeId: string;
   awayId: string;
+  homeParticipant?: Player | Team;
+  awayParticipant?: Player | Team;
   endedAt?: string; // using ISO 8601 date string
   score?: Score;
 };

@@ -4,6 +4,8 @@ import { Route, Switch } from "wouter";
 import { ConfigProvider } from "antd";
 import { Dashboard } from "./pages/dashboard";
 import { Participants } from "./pages/participants";
+import { PRIMARY } from "./style/colors";
+import { NewGame } from "./pages/new-game";
 
 function App() {
   return (
@@ -12,7 +14,7 @@ function App() {
         theme={{
           token: {
             // Seed Token
-            colorPrimary: "#005AEE",
+            colorPrimary: PRIMARY,
             colorInfo: "#00B8D9",
             borderRadius: 8,
           },
@@ -21,6 +23,7 @@ function App() {
         <Switch>
           <Route path="/" component={Dashboard} />
           <Route path="/participants" component={Participants} />
+          <Route path="/new-game/:id" component={NewGame} />
           <Route>404: No such page!</Route>
         </Switch>
       </ConfigProvider>
