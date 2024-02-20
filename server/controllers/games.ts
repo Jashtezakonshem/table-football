@@ -13,6 +13,8 @@ import {
   isGamePlayedBySamePlayerType,
 } from '../utils/games.validation.ts'
 import { defaultHeaders } from '../utils/constants.ts'
+import { Team } from './teams.ts'
+import { Player } from './players.ts'
 
 export type PlayerType = 'single' | 'double'
 
@@ -25,6 +27,8 @@ export type Game = {
   playerType: PlayerType
   homeId: ObjectId
   awayId: ObjectId
+  homeParticipant?: Player | Team
+  awayParticipant?: Player | Team
   endedAt?: string // using ISO 8601 date string
   score?: Score
 }
@@ -113,6 +117,37 @@ router.post('/games', async (req: Req, res: Res) => {
   res.reply = JSON.stringify(game)
 })
 
+router.get('/games/:id', async (req: Req, res: Res) => {
+  const path = pathParse(req)
+  const id = path.params.id
+  const games = db.collection<Game>('games')
+  const game = await games.findOne({ _id: new ObjectId(id) })
+  if (!game) {
+    res.status = 404
+    res.reply = JSON.stringify({ error: 'Game not found' })
+    return
+  }
+  const { homeId, awayId } = game
+  const participantsCollection = game.playerType === 'single'
+    ? 'players'
+    : 'teams'
+  const homeParticipant = await db.collection<Player | Team>(
+    participantsCollection,
+  ).findOne({
+    _id: homeId,
+  })
+  const awayParticipant = await db.collection<Player | Team>(
+    participantsCollection,
+  ).findOne({
+    _id: awayId,
+  })
+  res.reply = JSON.stringify({
+    ...game,
+    homeParticipant,
+    awayParticipant,
+  })
+})
+
 // Update score
 router.put('/games/:id/score', async (req: Req, res: Res) => {
   const body = await bodyParse(req)
@@ -128,6 +163,7 @@ router.put('/games/:id/score', async (req: Req, res: Res) => {
   }
   // in this case I'm updating the score so could be less than GAME_TOTAL_SCORE
   const isValidScore = score?.home + score?.away <= GAME_TOTAL_SCORE
+  console.log(isValidScore, score?.home, score?.away, GAME_TOTAL_SCORE)
   if (!isValidScore) {
     res.status = 400
     res.reply = JSON.stringify({
