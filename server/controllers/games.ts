@@ -124,6 +124,22 @@ router.post('/games', async (req: Req, res: Res) => {
     })
     return
   }
+  if (gamePlayedBySamePlayerType === 'double') {
+    const teams = await Promise.all([
+      db.collection<Team>('teams').findOne({ _id: new ObjectId(homeId) }),
+      db.collection<Team>('teams').findOne({ _id: new ObjectId(awayId) }),
+    ])
+    const playerIds = teams.map((team) => team?.playerIds).flat()
+    const playerIdsAsStrings = playerIds.map((id) => id.toString())
+    const uniquePlayerIds = _.uniq(playerIdsAsStrings)
+    if (uniquePlayerIds.length !== 4) {
+      res.status = 400
+      res.reply = JSON.stringify({
+        error: 'A player can only play in one team at a time',
+      })
+      return
+    }
+  }
   const isValidEnd = datetime(endedAt).isValid()
   const homeScore = gamePayload.score?.home ?? 0
   const awayScore = gamePayload.score?.away ?? 0

@@ -1,5 +1,10 @@
 import { router } from '../router.ts'
-import { bodyParse, Req, Res } from 'https://deno.land/x/denorest@v3.1/mod.ts'
+import {
+  bodyParse,
+  pathParse,
+  Req,
+  Res,
+} from 'https://deno.land/x/denorest@v3.1/mod.ts'
 import db from '../db.ts'
 import { ObjectId } from 'https://deno.land/x/web_bson@v0.3.0/mod.js'
 import {
@@ -36,6 +41,18 @@ router.get('/teams', async (_req: Req, res: Res) => {
   res.reply = JSON.stringify(teamWithPlayers)
 })
 
+router.get('/teams/:id', async (req: Req, res: Res) => {
+  const teams = db.collection<Team>('teams')
+  const playersCollection = db.collection('players')
+  const path = pathParse(req)
+  const id = path.params.id
+  const team = await teams.findOne({ _id: new ObjectId(id) })
+  const players = await playersCollection.find({
+    _id: { $in: team.playerIds },
+  })
+  const teamWithPlayers = { ...team, players }
+  res.reply = JSON.stringify(teamWithPlayers)
+})
 router.post('/teams', async (req: Req, res: Res) => {
   const body = await bodyParse(req)
   const teamPayload: TeamPayload = body.field
