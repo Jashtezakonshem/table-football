@@ -237,7 +237,6 @@ router.put('/games/:id/score', async (req: Req, res: Res) => {
   }
   // in this case I'm updating the score so could be less than GAME_TOTAL_SCORE
   const isValidScore = score?.home + score?.away <= GAME_TOTAL_SCORE
-  console.log(isValidScore, score?.home, score?.away, GAME_TOTAL_SCORE)
   if (!isValidScore) {
     res.status = 400
     res.reply = JSON.stringify({
