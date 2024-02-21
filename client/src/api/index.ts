@@ -22,6 +22,18 @@ export const createTeam = async ({
   return await axios.post("/teams", { name, playerIds });
 };
 
+export const getTeamById = async (id?: string) => {
+  return await axios.get(`/teams/${id}`);
+};
+
+export const getTeamStatistics = async (id?: string) => {
+  return await axios.get(`/teams/${id}/statistics`);
+};
+
+export const getTeamGames = async (id?: string) => {
+  return await axios.get(`/teams/${id}/games`);
+};
+
 export const createPlayer = async (player: Omit<Player, "_id">) => {
   return await axios.post("/players", player);
 };
