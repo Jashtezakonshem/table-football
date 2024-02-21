@@ -172,16 +172,19 @@ export const Participants = () => {
   };
 
   const onAddTeamClick = async () => {
-    const playerIds = newTeamPlayers.map((player) => player._id);
-    const name = nameRef.current?.input?.value || "";
-    const createdTeam = await createTeam({
-      name,
-      playerIds,
-    });
-    console.log(createdTeam);
-    const updatedTeams = [...teams, createdTeam];
-    setTeams(updatedTeams);
-    onClose();
+    try {
+      const playerIds = newTeamPlayers.map((player) => player._id);
+      const name = nameRef.current?.input?.value || "";
+      const { data: createdTeam } = await createTeam({
+        name,
+        playerIds,
+      });
+      const updatedTeams = [...teams, createdTeam];
+      setTeams(updatedTeams);
+      onClose();
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const onAddPlayerClick = async () => {
@@ -189,7 +192,7 @@ export const Participants = () => {
     const firstName = firstNameRef.current?.input?.value || "";
     const lastName = lastNameRef.current?.input?.value || "";
     try {
-      const createdPlayer = await createPlayer({
+      const { data: createdPlayer } = await createPlayer({
         nickName,
         firstName,
         lastName,

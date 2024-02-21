@@ -108,11 +108,15 @@ export const Dashboard = () => {
   const [players, setPlayers] = useState<Player[]>([]);
   useEffect(() => {
     const fetchData = async () => {
-      const statistics = await getStatistics();
-      const { teams, players } = await getParticipants();
-      setTeams(teams);
-      setPlayers(players);
-      setStatistics(statistics);
+      try {
+        const statistics = await getStatistics();
+        const { teams, players } = await getParticipants();
+        setTeams(teams);
+        setPlayers(players);
+        setStatistics(statistics);
+      } catch (e) {
+        console.log(e);
+      }
     };
     fetchData();
   }, []);
@@ -160,7 +164,10 @@ export const Dashboard = () => {
       (p) => p.label === awayParticipant,
     )?.value;
     try {
-      const game = await createGame(homeParticipantId, awayParticipantId);
+      const { data: game } = await createGame(
+        homeParticipantId,
+        awayParticipantId,
+      );
       setLocation(`/new-game/${game._id}`);
     } catch (e) {
       console.log(e);

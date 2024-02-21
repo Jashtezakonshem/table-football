@@ -8,7 +8,7 @@ import { PRIMARY } from "./style/colors";
 import { NewGame } from "./pages/new-game";
 import { TeamDetails } from "./pages/team-details";
 import { PlayerDetails } from "./pages/player-details";
-import { Compare } from "./pages/compare";
+import { Comparison } from "./pages/comparison";
 
 function App() {
   return (
@@ -30,7 +30,7 @@ function App() {
           <Route path="/new-game/:id" component={NewGame} />
           <Route path="/teams/:id" component={TeamDetails} />
           <Route path="/players/:id" component={PlayerDetails} />
-          <Route path="/compare/:id/:id2" component={Compare} />
+          <Route path="/compare/:id/:id2" component={Comparison} />
           <Route>404: No such page!</Route>
         </Switch>
       </ConfigProvider>

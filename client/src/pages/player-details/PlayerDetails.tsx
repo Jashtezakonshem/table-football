@@ -25,13 +25,17 @@ export const PlayerDetails = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { id } = params;
-      const player = await getPlayerById(id);
-      const playerStatistics = await getPlayerStatistics(id);
-      const gamesPlayed = await getPlayerGames(id);
-      setPlayer(player);
-      setStatistics(playerStatistics);
-      setGames(gamesPlayed);
+      try {
+        const { id } = params;
+        const { data: player } = await getPlayerById(id);
+        const { data: playerStatistics } = await getPlayerStatistics(id);
+        const { data: gamesPlayed } = await getPlayerGames(id);
+        setPlayer(player);
+        setStatistics(playerStatistics);
+        setGames(gamesPlayed);
+      } catch (e) {
+        console.log(e);
+      }
     };
     fetchData();
   }, []);

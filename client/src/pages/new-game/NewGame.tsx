@@ -34,11 +34,15 @@ export const NewGame = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { id } = params;
-      const game = await getGameById(id);
-      setGame(game);
-      if (game.score) {
-        setScore(game.score);
+      try {
+        const { id } = params;
+        const { data: game } = await getGameById(id);
+        setGame(game);
+        if (game.score) {
+          setScore(game.score);
+        }
+      } catch (e) {
+        console.log(e);
       }
     };
     fetchData();
@@ -53,12 +57,20 @@ export const NewGame = () => {
     setScore(updatedScore);
     // in this case I'm not using the response from the server
     // I'm optimisticly updating the score so I won't freeze ui with some loading etc
-    updateGameScore(game!._id, updatedScore);
+    try {
+      updateGameScore(game!._id, updatedScore);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const onEndGameClick = async () => {
-    await endGame(game!._id);
-    setLocation("/");
+    try {
+      await endGame(game!._id);
+      setLocation("/");
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const { homeName, awayName } = getParticipantNames(game);

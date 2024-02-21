@@ -21,7 +21,7 @@ const StatisticsContainer = styled.div`
 const GamesWrapper = styled.div`
   padding: 1rem;
 `;
-export const Compare = () => {
+export const Comparison = () => {
   const params = useParams();
   const [statistics, setStatistics] = useState<Statistic[]>([]);
   const [games, setGames] = useState<Game[]>([]);
@@ -29,13 +29,15 @@ export const Compare = () => {
     const fetchData = async () => {
       try {
         const { id, id2 } = params;
-        const games = await getGamePlayedByTwoParticipants(id, id2);
+        const { data: games } = await getGamePlayedByTwoParticipants(id, id2);
         const playerType = games[0]?.playerType;
         let statistics;
         if (playerType === "single") {
-          statistics = await getPlayersComparison(id, id2);
+          const { data } = await getPlayersComparison(id, id2);
+          statistics = data;
         } else {
-          statistics = await getTeamsComparison(id, id2);
+          const { data } = await getTeamsComparison(id, id2);
+          statistics = data;
         }
         setStatistics(statistics);
         setGames(games);

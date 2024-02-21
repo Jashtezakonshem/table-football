@@ -56,6 +56,14 @@ router.post('/teams', async (req: Req, res: Res) => {
     return
   }
   const teams = db.collection<Team>('teams')
+  const teamWithSamePlayers = await teams.findOne({
+    playerIds: { $all: playerIds.map((id) => new ObjectId(id)) },
+  })
+  if (teamWithSamePlayers) {
+    res.status = 400
+    res.reply = JSON.stringify({ error: 'Team with the same players exists' })
+    return
+  }
   const { insertedId } = await teams.insertOne({
     _id: new ObjectId(),
     name,
