@@ -98,6 +98,11 @@ router.post('/games', async (req: Req, res: Res) => {
     res.reply = JSON.stringify({ error: 'Invalid payload' })
     return
   }
+  if (homeId === awayId) {
+    res.status = 400
+    res.reply = JSON.stringify({ error: 'Home and away players are the same' })
+    return
+  }
   const playersOngoingGames = await getPlayersOngoingGames(homeId, awayId)
   const playersHaveOngoingGame = playersOngoingGames.length > 0
   if (playersHaveOngoingGame) {
@@ -107,6 +112,7 @@ router.post('/games', async (req: Req, res: Res) => {
     })
     return
   }
+
   const gamePlayedBySamePlayerType = await isGamePlayedBySamePlayerType(
     homeId,
     awayId,
@@ -228,4 +234,39 @@ router.put('/games/:id/end', async (req: Req, res: Res) => {
   )
   const updatedGame = await games.findOne({ _id: new ObjectId(id) })
   res.reply = JSON.stringify(updatedGame)
+})
+
+router.get('/participants/:id/vs/:id2/games', async (req: Req, res: Res) => {
+  const path = pathParse(req)
+  const id = path.params.id
+  const id2 = path.params.id2
+  const gamesCollection = db.collection<Game>('games')
+  const games = await gamesCollection.find({
+    $or: [
+      { homeId: new ObjectId(id), awayId: new ObjectId(id2) },
+      { homeId: new ObjectId(id2), awayId: new ObjectId(id) },
+    ],
+  })
+  const playerType = games[0]?.playerType
+  const participantsCollection = db.collection<Player | Team>(
+    playerType === 'single' ? 'players' : 'teams',
+  )
+  const firstParticipant = await participantsCollection.findOne({
+    _id: new ObjectId(id),
+  })
+  const secondParticipant = await participantsCollection.findOne({
+    _id: new ObjectId(id2),
+  })
+  const gamesWithParticipants = games.map((game) => {
+    return {
+      ...game,
+      homeParticipant: game.homeId.equals(firstParticipant?._id)
+        ? firstParticipant
+        : secondParticipant,
+      awayParticipant: game.awayId.equals(firstParticipant?._id)
+        ? firstParticipant
+        : secondParticipant,
+    }
+  })
+  res.reply = JSON.stringify(gamesWithParticipants)
 })

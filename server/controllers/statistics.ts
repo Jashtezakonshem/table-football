@@ -136,3 +136,49 @@ router.get('/players/:id/statistics', async (req, res) => {
   const statistics = computeStatistics(gamesPlayedByPlayer, [player])
   return res.reply = JSON.stringify(statistics[id] ? statistics[id] : {})
 })
+
+router.get('/players/:id/compare/:id2', async (req, res) => {
+  const playersCollection = db.collection<Player>('players')
+  const path = pathParse(req)
+  const id = path.params.id
+  const id2 = path.params.id2
+  const player1 = await playersCollection.findOne({ _id: new ObjectId(id) })
+  const player2 = await playersCollection.findOne({ _id: new ObjectId(id2) })
+  if (!player1 || !player2) {
+    res.status = 404
+    res.reply = JSON.stringify({ error: 'Player not found' })
+    return
+  }
+  const gamesCollection = db.collection<Game>('games')
+  const gamesPlayedByBoth = await gamesCollection.find({
+    $or: [
+      { homeId: new ObjectId(id), awayId: new ObjectId(id2) },
+      { homeId: new ObjectId(id2), awayId: new ObjectId(id) },
+    ],
+  })
+  const statistics = computeStatistics(gamesPlayedByBoth, [player1, player2])
+  return res.reply = JSON.stringify(Object.values(statistics))
+})
+
+router.get('/teams/:id/compare/:id2', async (req, res) => {
+  const teamsCollection = db.collection<Team>('teams')
+  const path = pathParse(req)
+  const id = path.params.id
+  const id2 = path.params.id2
+  const team1 = await teamsCollection.findOne({ _id: new ObjectId(id) })
+  const team2 = await teamsCollection.findOne({ _id: new ObjectId(id2) })
+  if (!team1 || !team2) {
+    res.status = 404
+    res.reply = JSON.stringify({ error: 'Team not found' })
+    return
+  }
+  const gamesCollection = db.collection<Game>('games')
+  const gamesPlayedByBoth = await gamesCollection.find({
+    $or: [
+      { homeId: new ObjectId(id), awayId: new ObjectId(id2) },
+      { homeId: new ObjectId(id2), awayId: new ObjectId(id) },
+    ],
+  })
+  const statistics = computeStatistics(gamesPlayedByBoth, [team1, team2])
+  return res.reply = JSON.stringify(Object.values(statistics))
+})
