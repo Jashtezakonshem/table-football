@@ -18,5 +18,7 @@ export const GoBackButton = ({
   color?: string;
 }) => {
   const [, setLocation] = useLocation();
-  return <Left color={color} onClick={() => setLocation(path)} />;
+  return (
+    <Left color={color} onClick={() => setLocation(path, { replace: true })} />
+  );
 };

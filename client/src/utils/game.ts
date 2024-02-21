@@ -1,6 +1,7 @@
 import { Game, Player } from "../model";
 
 export const getParticipantNames = (game?: Game) => {
+  console.log(game);
   if (!game) {
     return { homeName: "", awayName: "" };
   }

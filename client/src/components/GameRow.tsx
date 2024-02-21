@@ -37,7 +37,13 @@ const DateContainer = styled.div`
 const IconWrapper = styled.div`
   width: 2rem;
 `;
-export const GameRow = ({ game }: { game: Game }) => {
+export const GameRow = ({
+  game,
+  disabled = false,
+}: {
+  game: Game;
+  disabled?: boolean;
+}) => {
   const [, setLocation] = useLocation();
   const formattedDate = game.endedAt
     ? DateTime.fromISO(game.endedAt).toLocaleString(DateTime.DATE_SHORT)
@@ -45,8 +51,11 @@ export const GameRow = ({ game }: { game: Game }) => {
   const { homeName, awayName } = getParticipantNames(game);
 
   const onGameClick = () => {
+    if (disabled) {
+      return;
+    }
     if (game.endedAt) {
-      // go to statistics
+      setLocation(`/compare/${game.homeId}/${game.awayId}`);
     } else {
       setLocation(`/new-game/${game._id}`);
     }
@@ -70,8 +79,8 @@ export const GameRow = ({ game }: { game: Game }) => {
           </div>
         </ParticipantColumn>
         <IconWrapper>
-          {formattedDate && <BarChartOutlined />}
-          {!formattedDate && <EnterOutlined />}
+          {formattedDate && !disabled && <BarChartOutlined />}
+          {!formattedDate && !disabled && <EnterOutlined />}
         </IconWrapper>
       </Container>
     </>

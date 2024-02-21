@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Player, Score, Statistic } from "../model";
+import { Game, Player, Score, Statistic } from "../model";
 
 export const getStatistics = async () => {
   const { data } = await axios.get("/statistics");
@@ -98,6 +98,37 @@ export const updateGameScore = async (id: string, score: Score) => {
 export const endGame = async (id: string) => {
   try {
     const { data } = await axios.put(`/games/${id}/end`);
+    return data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const getGamePlayedByTwoParticipants = async (
+  id?: string,
+  id2?: string,
+): Promise<Game[]> => {
+  try {
+    const { data } = await axios.get(`/participants/${id}/vs/${id2}/games`);
+    return data;
+  } catch (e) {
+    console.log(e);
+    return [];
+  }
+};
+
+export const getPlayersComparison = async (id?: string, id2?: string) => {
+  try {
+    const { data } = await axios.get(`/players/${id}/compare/${id2}`);
+    return data;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+export const getTeamsComparison = async (id?: string, id2?: string) => {
+  try {
+    const { data } = await axios.get(`/teams/${id}/compare/${id2}`);
     return data;
   } catch (e) {
     console.log(e);
