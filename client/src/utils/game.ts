@@ -1,4 +1,4 @@
-import { Game, Player } from "../model";
+import { Game, Player, Team } from "../model";
 
 export const getParticipantNames = (game?: Game) => {
   console.log(game);
@@ -13,11 +13,11 @@ export const getParticipantNames = (game?: Game) => {
       awayName: awayParticipant.nickName,
     };
   } else {
-    const homeParticipant = game.homeParticipant as Player;
-    const awayParticipant = game.awayParticipant as Player;
+    const homeParticipant = game.homeParticipant as Team;
+    const awayParticipant = game.awayParticipant as Team;
     return {
-      homeName: homeParticipant.nickName,
-      awayName: awayParticipant.nickName,
+      homeName: homeParticipant.name,
+      awayName: awayParticipant.name,
     };
   }
 };
