@@ -89,9 +89,12 @@ router.get('/statistics', async (_req, res) => {
     ...playersStatistics,
     ...teamsStatistics,
   }
-  const statistics = Object.values(allStatistics).sort((a, b) =>
-    b.winRatio - a.winRatio
-  )
+  const statistics = Object.values(allStatistics).sort((a, b) => {
+    if (b.winRatio === a.winRatio) {
+      return b.gd - a.gd
+    }
+    return b.winRatio - a.winRatio
+  })
   return res.reply = JSON.stringify(statistics)
 })
 
