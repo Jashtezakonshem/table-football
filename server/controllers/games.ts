@@ -42,12 +42,21 @@ export type GamePayload = {
 
 const GAME_TOTAL_SCORE = 10
 
+/**
+ * Get all games
+ * @returns {Game[]} the list of games
+ */
 router.get('/games', async (_req: Req, res: Res) => {
   const games = db.collection<Game>('games')
   const allGames = await games.find()
   res.reply = JSON.stringify(allGames)
 })
 
+/**
+ * Get games by team id or player id
+ * @param {string} id the team or player id
+ * @returns {Game[]} the list of games
+ */
 const getGamesByTeamIdOrPlayerId = async (req: Req, res: Res) => {
   const games = db.collection<Game>('games')
   const path = pathParse(req)
@@ -89,6 +98,11 @@ router.get('/players/:id/games', getGamesByTeamIdOrPlayerId)
 
 router.get('/teams/:id/games', getGamesByTeamIdOrPlayerId)
 
+/**
+ * Create a game
+ * @param {GamePayload} gamePayload the game payload
+ * @returns {Game} the created game
+ */
 router.post('/games', async (req: Req, res: Res) => {
   const body = await bodyParse(req)
   const gamePayload: GamePayload = body.field
@@ -167,6 +181,11 @@ router.post('/games', async (req: Req, res: Res) => {
   res.reply = JSON.stringify(game)
 })
 
+/**
+ * Get a game by id
+ * @param {string} id the game id
+ * @returns {Game} the game
+ */
 router.get('/games/:id', async (req: Req, res: Res) => {
   const path = pathParse(req)
   const id = path.params.id
@@ -198,7 +217,12 @@ router.get('/games/:id', async (req: Req, res: Res) => {
   })
 })
 
-// Update score
+/**
+ * Update a game score
+ * @param {string} id the game id
+ * @param {Score} score the score
+ * @returns {Game} the updated game
+ */
 router.put('/games/:id/score', async (req: Req, res: Res) => {
   const body = await bodyParse(req)
   const path = pathParse(req)
@@ -229,7 +253,11 @@ router.put('/games/:id/score', async (req: Req, res: Res) => {
   res.reply = JSON.stringify(updatedGame)
 })
 
-//end game
+/**
+ * End a game
+ * @param {string} id the game id
+ * @returns {Game} the ended game
+ */
 router.put('/games/:id/end', async (req: Req, res: Res) => {
   const path = pathParse(req)
   const id = path.params.id
@@ -253,6 +281,12 @@ router.put('/games/:id/end', async (req: Req, res: Res) => {
   res.reply = JSON.stringify(updatedGame)
 })
 
+/**
+ * Get games played by two participants
+ * @param {string} id the participant id
+ * @param {string} id2 the participant id
+ * @returns {Game[]} the list of games
+ */
 router.get('/participants/:id/vs/:id2/games', async (req: Req, res: Res) => {
   const path = pathParse(req)
   const id = path.params.id

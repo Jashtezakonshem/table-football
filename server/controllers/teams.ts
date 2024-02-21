@@ -24,6 +24,10 @@ export type TeamPayload = {
   playerIds: string[]
 }
 
+/**
+ * Get all teams
+ * @returns {Team[]} the list of teams
+ */
 router.get('/teams', async (_req: Req, res: Res) => {
   const teams = db.collection<Team>('teams')
   const playersCollection = db.collection('players')
@@ -41,6 +45,11 @@ router.get('/teams', async (_req: Req, res: Res) => {
   res.reply = JSON.stringify(teamWithPlayers)
 })
 
+/**
+ * Get a team by id
+ * @param {string} id the team id
+ * @returns {Team} the team
+ */
 router.get('/teams/:id', async (req: Req, res: Res) => {
   const teams = db.collection<Team>('teams')
   const playersCollection = db.collection('players')
@@ -53,6 +62,12 @@ router.get('/teams/:id', async (req: Req, res: Res) => {
   const teamWithPlayers = { ...team, players }
   res.reply = JSON.stringify(teamWithPlayers)
 })
+
+/**
+ * Create a team
+ * @param {TeamPayload} teamPayload the team payload
+ * @returns {Team} the created team
+ */
 router.post('/teams', async (req: Req, res: Res) => {
   const body = await bodyParse(req)
   const teamPayload: TeamPayload = body.field

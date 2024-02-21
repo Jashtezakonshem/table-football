@@ -17,12 +17,22 @@ export type Player = {
 }
 
 export type PlayerPayload = Omit<Player, '_id'>
+
+/**
+ * Get all players
+ * @returns {Player[]} the list of players
+ */
 router.get('/players', async (_req: Req, res: Res) => {
   const players = db.collection<Player>('players')
   const allPlayers = await players.find()
   res.reply = JSON.stringify(allPlayers)
 })
 
+/**
+ * Get a player by id
+ * @param {string} id the player id
+ * @returns {Player} the player
+ */
 router.get('/players/:id', async (req: Req, res: Res) => {
   const players = db.collection<Player>('players')
   const path = pathParse(req)
@@ -31,6 +41,11 @@ router.get('/players/:id', async (req: Req, res: Res) => {
   res.reply = JSON.stringify(player)
 })
 
+/**
+ * Create a player
+ * @param {PlayerPayload} playerPayload the player payload
+ * @returns {Player} the created player
+ */
 router.post('/players', async (req: Req, res: Res) => {
   const body = await bodyParse(req)
   const playerPayload: PlayerPayload = body.field

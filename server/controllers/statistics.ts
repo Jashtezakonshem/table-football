@@ -4,7 +4,6 @@ import { ObjectId } from 'https://deno.land/x/web_bson@v0.3.0/mod.js'
 import { Game } from './games.ts'
 import { Team } from './teams.ts'
 import { Player } from './players.ts'
-import { defaultHeaders } from '../utils/constants.ts'
 import { pathParse } from 'https://deno.land/x/denorest@v3.1/mod.ts'
 
 type Statistic = {
@@ -76,6 +75,11 @@ const computeStatistics = (
     return { ...acc, [participant._id.toString()]: statistics }
   }, {})
 }
+
+/**
+ * Get all statistics
+ * @returns {Statistic[]} the list of statistics
+ */
 router.get('/statistics', async (_req, res) => {
   const gamesCollection = db.collection<Game>('games')
   const teamsCollection = db.collection<Team>('teams')
@@ -98,6 +102,11 @@ router.get('/statistics', async (_req, res) => {
   return res.reply = JSON.stringify(statistics)
 })
 
+/**
+ * Get statistics by team id
+ * @param {string} id the team id
+ * @returns {Statistic} the team statistics
+ */
 router.get('/teams/:id/statistics', async (req, res) => {
   const teamsCollection = db.collection<Team>('teams')
   const path = pathParse(req)
@@ -116,9 +125,14 @@ router.get('/teams/:id/statistics', async (req, res) => {
     ],
   })
   const statistics = computeStatistics(gamesPlayedByTeam, [team])
-  return res.reply = JSON.stringify(statistics)
+  return res.reply = JSON.stringify(statistics[id] ? statistics[id] : {})
 })
 
+/**
+ * Get statistics by player id
+ * @param {string} id the player id
+ * @returns {Statistic} the player statistics
+ */
 router.get('/players/:id/statistics', async (req, res) => {
   const playersCollection = db.collection<Player>('players')
   const path = pathParse(req)
@@ -140,6 +154,11 @@ router.get('/players/:id/statistics', async (req, res) => {
   return res.reply = JSON.stringify(statistics[id] ? statistics[id] : {})
 })
 
+/**
+ * Get statistics by team id
+ * @param {string} id the team id
+ * @returns {Statistic[]} the team statistics
+ */
 router.get('/players/:id/compare/:id2', async (req, res) => {
   const playersCollection = db.collection<Player>('players')
   const path = pathParse(req)
@@ -163,6 +182,11 @@ router.get('/players/:id/compare/:id2', async (req, res) => {
   return res.reply = JSON.stringify(Object.values(statistics))
 })
 
+/**
+ * Get statistics by team id
+ * @param {string} id the team id
+ * @returns {Statistic[]} the team statistics
+ */
 router.get('/teams/:id/compare/:id2', async (req, res) => {
   const teamsCollection = db.collection<Team>('teams')
   const path = pathParse(req)
