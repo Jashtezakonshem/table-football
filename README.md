@@ -46,6 +46,12 @@ Install Deno following the documenation on the official website: https://deno.la
 Install `yarn` following the documenation on the official website: https://yarnpkg.com/
 (ofc you can use npm but it will generate a package-lock.json file as you already know)
 
+## Before running the project
+create `.env` under /server and add the following variables:
+```
+API_KEY=ox2kaXKCBUQPL1WJJdkOgReOoQFzO25pISKACorXHICZsMwF0cWj2GGM3KynP2ll
+APP_ID=data-yywju
+```
 ## Run the project
 `yarn start:server` in a console
 `yarn bootstrap:client` in another console (or `yarn start:client` if you have already installed the dependencies)
