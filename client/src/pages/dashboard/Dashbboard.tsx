@@ -50,8 +50,6 @@ const NewButton = styled(Button)`
 `;
 
 const StatisticsTable = styled(Table)`
-  height: 100%;
-  width: 100%;
   overflow: scroll;
 `;
 
@@ -157,17 +155,10 @@ export const Dashboard = () => {
   );
 
   const newGame = async () => {
-    const homeParticipantId = participants.find(
-      (p) => p.label === homeParticipant,
-    )?.value;
-    const awayParticipantId = participants.find(
-      (p) => p.label === awayParticipant,
-    )?.value;
+    const homeId = participants.find((p) => p.label === homeParticipant)?.value;
+    const awayId = participants.find((p) => p.label === awayParticipant)?.value;
     try {
-      const { data: game } = await createGame(
-        homeParticipantId,
-        awayParticipantId,
-      );
+      const { data: game } = await createGame({ homeId, awayId });
       setLocation(`/new-game/${game._id}`);
     } catch (e) {
       console.log(e);

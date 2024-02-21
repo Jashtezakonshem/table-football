@@ -160,6 +160,7 @@ router.post('/games', async (req: Req, res: Res) => {
     awayId: new ObjectId(awayId),
     playerType: gamePlayedBySamePlayerType,
     score,
+    endedAt,
   })
   const game = await games.findOne({ _id: new ObjectId(insertedId) })
   res.status = 201

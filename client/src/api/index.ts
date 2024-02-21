@@ -50,8 +50,19 @@ export const getPlayerGames = async (id?: string) => {
   return await axios.get(`/players/${id}/games`);
 };
 
-export const createGame = async (homeId?: string, awayId?: string) => {
-  return await axios.post("/games", { homeId, awayId });
+type GamePayload = {
+  homeId?: string;
+  awayId?: string;
+  endedAt?: string;
+  score?: Score;
+};
+export const createGame = async ({
+  homeId,
+  awayId,
+  score,
+  endedAt,
+}: GamePayload) => {
+  return await axios.post("/games", { homeId, awayId, score, endedAt });
 };
 
 export const getGameById = async (id?: string) => {
